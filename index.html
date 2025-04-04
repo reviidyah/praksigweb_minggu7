@@ -1,0 +1,171 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Leaflet Web Map M7</title> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <script src="jogja.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha3841BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" 
+    crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+    <style> 
+    html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        #map { 
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        #title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px;
+            background: white;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style> 
+</head> 
+<body>
+    <div id="title">Rute dari Kost Putri Melati ke Teknik Geodesi UGM</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha3841BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" 
+    crossorigin="anonymous"></script>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                    <a class="navbar-brand" href="#">Navbar</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+                <form class="form-inline my-2 my-lg-0">
+                <button class="btn btn-outline-success my-2 my-sm-0">Lokasi saya</button>
+                </form>
+                </div>
+            </div>
+        </nav>
+    </header>  
+    <div id="map"></div>
+    <script> 
+    var map = L.map('map',{ 
+        center: [-7.79558, 110.36949], 
+        zoom: 12 });
+    L.Control.geocoder({
+    defaultMarkGeocode: false}).on('markgeocode', function(e) {
+        var latlng = e.geocode.center;L.marker(latlng).addTo(map).bindPopup(e.geocode.name).openPopup();map.setView(latlng, 15);
+    }).addTo(map);
+
+    var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { 
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors' 
+    }).addTo(map); 
+    var esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    }).addTo(map); 
+    var carto = L.tileLayer('https://cartodb-basemaps{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',subdomains: 'abcd',maxZoom: 19});
+    var baseMaps = {"Citra Satelit": esri,"Peta Carto": carto};
+
+    //rute kost ke geodesi
+    L.Routing.control({
+    waypoints: [
+    L.latLng(-7.772790777228523, 110.36989719171135), //kost
+    L.latLng(-7.763840560626304, 110.37266902420501) //geodesi
+    ],
+    routeWhileDragging: false,
+    show: false
+    }).addTo(map);
+    
+    //geodesi
+    var geodesi = L.marker([-7.763840560626304, 110.37266902420501])
+    .bindPopup('<h2>Teknik Geodesi UGM</h2><img src="https://masuk-ptn.com/images/department/407673973acec76cec3d2309861790f78606d8f5.jpg" style="width:200px; display:block; margin:auto;">')
+    .addTo(map);
+    
+    //kost
+    var kost = L.marker([-7.772790777228523, 110.36989719171135])
+    .bindPopup('<h2>Kost Putri Melati</h2>').addTo(map);
+
+    //gmc
+    var GMC = L.marker([-7.772473507973101, 110.37509799536923])
+    .bindPopup('<h2>Gadjah Mada Medical Center</h2><img src="https://gmc.ugm.ac.id/wp-content/uploads/sites/50/2013/10/21-825x457.jpg" style="width:200px; display:block; margin:auto;">')
+    .addTo(map);
+    
+    //fkkmk
+    var fkkmk = L.marker([-7.769408435555031, 110.37403580981268])
+    .bindPopup('<h2>FKKMK UGM</h2><img src="https://ugm.ac.id/wp-content/uploads/2020/11/1311201605250013852135362.jpg" style="width:200px; display:block; margin:auto;">')
+    .addTo(map);
+
+    //sardjito
+    var sardjito = L.marker([-7.768557832493554, 110.37345810642836])
+    .bindPopup('<h2>Rumah Sakit Umum Dr.Sardjito</h2><img src="https://awsimages.detik.net.id/community/media/visual/2020/03/17/6b9796f3-3ca3-4e52-a030-6dfa6e132ad8_169.jpeg?w=650" style="width:200px; display:block; margin:auto;">')
+    .addTo(map);
+
+    //asrama sendowo
+    var asrama = L.marker([-7.771647108183271, 110.37290550710557])
+    .bindPopup('<h2>Retnaningsih Sendowo Residence UGM</h2><img src="https://residence.ugm.ac.id/wp-content/uploads/sites/1094/2024/10/DSC01499-scaled-700x400.jpg" style="width:200px; display:block; margin:auto;">')
+    .addTo(map);
+
+    //fakultas biologi
+    var biologi = L.marker([-7.765209791903117, 110.37660878002573])
+    .bindPopup('<h2>Fakultas Biologi UGM</h2><img src="https://ugm.ac.id/wp-content/uploads/2022/11/fak-biologi1.jpg" style="width:200px; display:block; margin:auto;">')
+    .addTo(map);
+
+    //pascasarjana
+    var pascasarjana = L.marker([-7.763540664205416, 110.3756403328449])
+    .bindPopup('<h2>Sekolah Pascasarjana UGM</h2><img src="https://www.pasca.ugm.ac.id/fotopost/1000xe212c68e47d9f3e54f793d877ff785c6.jpg" style="width:200px; display:block; margin:auto;">')
+    .addTo(map);
+
+    var lokasi = L.layerGroup([geodesi, kost, GMC, fkkmk, sardjito, asrama, biologi, pascasarjana]);
+    var overlayMaps = {"UGM": lokasi};
+
+    L.control.layers(baseMaps, overlayMaps).addTo(map);
+    L.geoJSON(jogjageojson,{
+      style: function(feature) {
+        switch (feature.properties.KABUPATEN) {
+            case 'Gunung Kidul': return {color: "#ff9900"};
+            case 'Sleman':  return {color: "red"};
+            case 'Bantul':  return {color: "blue"};
+            case 'Yogyakarta':  return {color: "green"};
+            case 'Kulon Progo':  return {color: "magenta"};
+        }
+      },
+        onEachFeature: function (feature, layer) {
+            layer.bindPopup(
+                'Kecamatan adalah ' + 
+                '<strong>' +
+                    feature.properties.KECAMATAN +
+                    '</strong>'
+                );
+        }
+    }).addTo(map);
+    </script> 
+    <script 
+     src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.mi
+      n.js" integrity="sha384
+     ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" 
+     crossorigin="anonymous">
+    </script>
+</body> 
+</html> 
